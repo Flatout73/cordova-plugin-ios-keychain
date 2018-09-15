@@ -92,6 +92,46 @@
     return dataFound;
 }
 
+- (NSDictionary *)dictionaryForKey:(NSString *)key server:(NSString *)server error:(NSError**)err{
+    if (!key) {
+        return nil;
+    }
+
+    NSMutableDictionary *query = [@{
+        (__bridge id)kSecClass: (id)kSecClassInternetPassword,
+        (__bridge id)kSecAttrServer: server,
+        (__bridge id)kSecReturnAttributes: @YES,
+        (__bridge id)kSecReturnData: @YES,
+        (__bridge id)kSecAttrService: self.service
+    } mutableCopy];
+
+#if !TARGET_IPHONE_SIMULATOR
+    if (self.accessGroup) {
+        query[(__bridge id)kSecAttrAccessGroup] = self.accessGroup;
+    }
+#endif
+
+#if TARGET_OS_IPHONE
+    if (self.useAccessControl) {
+        if (message && floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1) {
+            query[(__bridge id)kSecUseOperationPrompt] = message;
+        }
+    }
+#endif
+
+
+    NSDictionary *dict = nil;
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &dict);
+    if (status != errSecSuccess) {
+        if(err != nil) {
+            *err = [NSError errorWithDomain:A0ErrorDomain code:status userInfo:@{NSLocalizedDescriptionKey : [self stringForSecStatus:status]}];
+        }
+        return nil;
+    }
+
+    return dict;
+}
+
 - (BOOL)hasValueForKey:(NSString *)key {
     if (!key) {
         return NO;

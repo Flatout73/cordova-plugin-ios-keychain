@@ -36,21 +36,33 @@
 
     NSString *key = [arguments objectAtIndex:0];
     NSString *touchIDMessage = [arguments objectAtIndex:1];
+    NSString *group = [arguments objectAtIndex:2];
+
+    NSString *server = [arguments objectAtIndex:3];
 
     NSString *message = NSLocalizedString(@"Please Authenticate", nil);
     if(![touchIDMessage isEqual:[NSNull null]]) {
       message = NSLocalizedString(touchIDMessage, @"Prompt TouchID message");
     }
 
-    A0SimpleKeychain *keychain = [A0SimpleKeychain keychain];
+    A0SimpleKeychain *keychain = [A0SimpleKeychain keychainWithService: [[NSBundle mainBundle] bundleIdentifier] accessGroup: group];
 
     keychain.useAccessControl = YES;
     keychain.defaultAccessiblity = A0SimpleKeychainItemAccessibleWhenPasscodeSetThisDeviceOnly;
 
-    NSString *value = [keychain stringForKey:key promptMessage:message];
+    if (server) {
+      NSString *error;
+      NSDictionary *value = [keychain dictionaryForKey:key server:server error:error];
 
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:value];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } else {
+
+      NSString *value = [keychain stringForKey:key promptMessage:message];
+
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:value];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
   }];
 }
 
@@ -69,8 +81,9 @@
     NSString* key = [arguments objectAtIndex:0];
     NSString* value = [arguments objectAtIndex:1];
     BOOL useTouchID = [[arguments objectAtIndex:2] boolValue];
+    NSString *group = [arguments objectAtIndex:3];
    
-    A0SimpleKeychain *keychain = [A0SimpleKeychain keychain];
+    A0SimpleKeychain *keychain = [A0SimpleKeychain keychainWithService: [[NSBundle mainBundle] bundleIdentifier] accessGroup: group];
 
     if(useTouchID) {
       keychain.useAccessControl = YES;
