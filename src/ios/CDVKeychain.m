@@ -51,7 +51,11 @@
     keychain.defaultAccessiblity = A0SimpleKeychainItemAccessibleWhenPasscodeSetThisDeviceOnly;
 
     if (server) {
-      NSDictionary *value = [keychain dictionaryForKey:key promptMessage:message server:server];
+      NSDictionary *res = [keychain dictionaryForKey:key promptMessage:message server:server];
+        
+      NSDictionary *value = @{ (id)kSecAttrAccount: res[(id)kSecAttrAccount],
+                                 (id)kSecValueData: [[NSString alloc] initWithData:(NSData*)res[(id)kSecValueData] encoding: kCFStringEncodingUTF8]
+                                };
 
       pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:value];
       [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

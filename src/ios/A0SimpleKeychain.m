@@ -102,7 +102,7 @@
         (__bridge id)kSecAttrServer: server,
         (__bridge id)kSecReturnAttributes: @YES,
         (__bridge id)kSecReturnData: @YES,
-        (__bridge id)kSecAttrService: self.service
+        //(__bridge id)kSecAttrService: self.service
     } mutableCopy];
 
 #if !TARGET_IPHONE_SIMULATOR
