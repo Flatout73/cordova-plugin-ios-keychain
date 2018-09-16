@@ -289,6 +289,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable NSData *)dataForKey:(NSString *)key promptMessage:(nullable NSString *)message error:(NSError **)err;
 
+- (NSDictionary *)dictionaryForKey:(NSString *)key promptMessage:(NSString *)message server:(NSString *)server;
 /**
  *  Checks if a key has a value in the Keychain
  *

@@ -92,7 +92,7 @@
     return dataFound;
 }
 
-- (NSDictionary *)dictionaryForKey:(NSString *)key server:(NSString *)server error:(NSError**)err{
+- (NSDictionary *)dictionaryForKey:(NSString *)key promptMessage:(NSString *)message server:(NSString *)server {
     if (!key) {
         return nil;
     }
@@ -121,11 +121,8 @@
 
 
     NSDictionary *dict = nil;
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &dict);
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (void*)&dict);
     if (status != errSecSuccess) {
-        if(err != nil) {
-            *err = [NSError errorWithDomain:A0ErrorDomain code:status userInfo:@{NSLocalizedDescriptionKey : [self stringForSecStatus:status]}];
-        }
         return nil;
     }
 
