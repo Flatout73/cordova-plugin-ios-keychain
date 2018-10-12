@@ -49,16 +49,21 @@
 
     keychain.useAccessControl = YES;
     keychain.defaultAccessiblity = A0SimpleKeychainItemAccessibleWhenPasscodeSetThisDeviceOnly;
-
+   
     if (server) {
       NSDictionary *res = [keychain dictionaryForKey:key promptMessage:message server:server];
         
-      NSDictionary *value = @{ (id)kSecAttrAccount: res[(id)kSecAttrAccount],
-                                 (id)kSecValueData: [[NSString alloc] initWithData:(NSData*)res[(id)kSecValueData] encoding: kCFStringEncodingUTF8]
-                                };
-
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:value];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        if (res) {
+            NSDictionary *value = @{ (id)kSecAttrAccount: res[(id)kSecAttrAccount],
+                                     (id)kSecValueData: [[NSString alloc] initWithData:(NSData*)res[(id)kSecValueData] encoding: kCFStringEncodingUTF8]
+                                     };
+            
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:value];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        } else {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT messageAsDictionary: @{}];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }
     } else {
 
       NSString *value = [keychain stringForKey:key promptMessage:message];
